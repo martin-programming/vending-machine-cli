@@ -1,0 +1,19 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+STAGED_PHP=$(git diff --cached --name-only --diff-filter=ACMR -- '*.php')
+
+if [ -z "$STAGED_PHP" ]; then
+    exit 0
+fi
+
+if ! docker compose ps --status running | grep -q "app"; then
+    echo "[pre-commit] Docker app container is not running. Skipping checks."
+    exit 0
+fi
+
+APP="docker compose exec -T app"
+
+echo "[pre-commit] Running Pint..."
+$APP ./vendor/bin/pint $STAGED_PHP
+echo "$STAGED_PHP" | xargs git add
