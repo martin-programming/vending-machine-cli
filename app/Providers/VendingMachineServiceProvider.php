@@ -7,6 +7,7 @@ namespace App\Providers;
 use App\Domain\VendingMachine\Contracts\ChangeCalculatorInterface;
 use App\Domain\VendingMachine\Contracts\VendingMachineRepositoryInterface;
 use App\Domain\VendingMachine\Services\GreedyChangeCalculator;
+use App\Infrastructure\Console\VendingMachineCommand;
 use App\Infrastructure\Persistence\InMemoryVendingMachineRepository;
 use Illuminate\Support\ServiceProvider;
 
@@ -20,5 +21,12 @@ final class VendingMachineServiceProvider extends ServiceProvider
             VendingMachineRepositoryInterface::class,
             InMemoryVendingMachineRepository::class,
         );
+    }
+
+    public function boot(): void
+    {
+        if ($this->app->runningInConsole()) {
+            $this->commands([VendingMachineCommand::class]);
+        }
     }
 }
